@@ -9,5 +9,15 @@
 import Foundation
 
 final class Word {
+    let request_id: String
+    let output_type: String
+    let sentence: String
+    let converted: String
     
+    init(beforeText before: String, attributes: [String: Any]) {
+        sentence = before;
+        request_id =  attributes["request_id"] as! String
+        output_type = attributes["output_type"] as! String
+        converted = attributes["converted"] as! String
+    }
 }

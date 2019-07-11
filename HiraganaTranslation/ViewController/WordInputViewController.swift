@@ -12,10 +12,9 @@ import UIKit
 class WordInputViewController: UIViewController {
     
     fileprivate var wordInputView: WordInputView!
-    
+    fileprivate var inputTxt: String?
+
     fileprivate var viewModel: WordInputViewModel!
-    fileprivate var tableView: UITableView!
-    fileprivate var refreshControl: UIRefreshControl!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,11 +39,45 @@ class WordInputViewController: UIViewController {
 extension WordInputViewController: WordInputViewDelegate {
     
     func wordInputView(wordEditting view: WordInputView, text: String) {
-        print("編集中:\(text)")
+        
+        inputTxt = text
     }
     
     func wordInputView(sendButtonDidTap view: WordInputView) {
-        print("送信！！")
+        
+        viewModel = WordInputViewModel()
+        viewModel.stateDidupdate = {[weak self] state in
+            switch state {
+            case .loading:  //通信中
+
+                break
+                
+            case .finish:   //通信完了
+                
+                let sentense = self?.viewModel.sentenseText()
+                let converted = self?.viewModel.convertedText()
+                print("変換前:\(sentense!) 変換後:\(converted!)")
+                
+                //画面遷移して返還後のテキストを表示
+                
+                break
+                
+            case .error(let error): //エラー
+                
+                let alertController = UIAlertController(title: error.localizedDescription,
+                                                        message: nil,
+                                                        preferredStyle: .alert)
+                let alertAction = UIAlertAction(title: "OK",
+                                                style: .cancel,
+                                                handler: nil)
+                alertController.addAction(alertAction)
+                self?.present(alertController, animated: true, completion: nil)
+                break
+            }
+        }
+        
+        //ユーザー一覧を取得
+        viewModel.getTranslation(transword: inputTxt!)
     }
     
     

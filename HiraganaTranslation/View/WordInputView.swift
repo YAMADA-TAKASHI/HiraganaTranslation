@@ -80,6 +80,8 @@ class WordInputView: UIView {
     }
     
     @objc func sendButtonTapped(_ sender: UIButton) {
+        
+        //親に通知
         delegate?.wordInputView(sendButtonDidTap: self)
     }
 }
