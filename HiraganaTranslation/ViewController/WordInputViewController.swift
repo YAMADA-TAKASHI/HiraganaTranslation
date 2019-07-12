@@ -34,6 +34,15 @@ class WordInputViewController: UIViewController {
                                       height: view.frame.size.height - view.safeAreaInsets.bottom)
 
     }
+    
+    //タスクが未入力時のアラート
+    fileprivate func showMissingTextAlert() {
+        let alertController = UIAlertController(title: "テキストを入力してください", message: nil, preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "OK", style: .cancel, handler: nil)
+        alertController.addAction(action)
+        present(alertController, animated: true, completion: nil)
+    }
 }
 
 extension WordInputViewController: WordInputViewDelegate {
@@ -49,20 +58,31 @@ extension WordInputViewController: WordInputViewDelegate {
         viewModel.stateDidupdate = {[weak self] state in
             switch state {
             case .loading:  //通信中
-
+                
+                //変換ボタンを押せないように
+                self?.wordInputView.setSendButtonEnabled(false)
+                
                 break
                 
             case .finish:   //通信完了
+                
+                //変換ボタンを押せるように
+                self?.wordInputView.setSendButtonEnabled(true)
                 
                 let sentense = self?.viewModel.sentenseText()
                 let converted = self?.viewModel.convertedText()
                 print("変換前:\(sentense!) 変換後:\(converted!)")
                 
                 //画面遷移して返還後のテキストを表示
+                let controller = ResultViewController(senetense: sentense!, converted: converted!)
+                self?.navigationController?.pushViewController(controller, animated: true)
                 
                 break
                 
             case .error(let error): //エラー
+                
+                //変換ボタンを押せるように
+                self?.wordInputView.setSendButtonEnabled(true)
                 
                 let alertController = UIAlertController(title: error.localizedDescription,
                                                         message: nil,
@@ -76,8 +96,20 @@ extension WordInputViewController: WordInputViewDelegate {
             }
         }
         
+        guard let inputTxt = inputTxt else {
+            showMissingTextAlert()
+            return
+        }
+        
+        //長さが足りない
+        if inputTxt.count <= 0 {
+            showMissingTextAlert()
+            return
+        }
+        
+        
         //ユーザー一覧を取得
-        viewModel.getTranslation(transword: inputTxt!)
+        viewModel.getTranslation(transword: inputTxt)
     }
     
     

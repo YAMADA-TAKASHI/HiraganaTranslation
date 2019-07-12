@@ -81,8 +81,24 @@ class WordInputView: UIView {
     
     @objc func sendButtonTapped(_ sender: UIButton) {
         
+        //再度格納
+        wordTextField.resignFirstResponder()
+
         //親に通知
         delegate?.wordInputView(sendButtonDidTap: self)
+    }
+    
+    func setSendButtonEnabled(_ enable: Bool) {
+        sendButton.isEnabled = enable
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        //画面タッチでキーボード隠す
+        endEditing(true)
+        
+        //親に通知
+        delegate?.wordInputView(wordEditting: self, text: wordTextField.text ?? "")
     }
 }
 
@@ -94,6 +110,13 @@ extension WordInputView: UITextFieldDelegate {
         delegate?.wordInputView(wordEditting: self, text: textField.text ?? "")
         
         return true
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        
+        //親に送信
+        delegate?.wordInputView(wordEditting: self, text: textField.text ?? "")
+        
     }
 }
 
